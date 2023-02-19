@@ -1,3 +1,6 @@
+import 'package:fipez/models/FipeDetails.dart';
+import 'package:fipez/models/FipeRequest.dart';
+import 'package:fipez/screens/fipe_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:search_choices/search_choices.dart';
 
@@ -12,9 +15,15 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String selectedVehicleType = 'Selecione o tipo de veículo';
-  String selectedVehicleBrand = 'Selecione a marca';
+  String? selectedVehicleBrand;
+  String? selectedVehicleModel;
+  String? selectedVehicleYear;
 
-  List<String> vehicleBrands = ['Selecione a marca'];
+  FipeDetail? fipeDetails;
+
+  List<FipeRequest>? vehicleBrands;
+  List<FipeRequest>? vehicleYears;
+  List<FipeRequest>? vehicleModels;
   List<String> vehicleTypes = [
     'Selecione o tipo de veículo',
     'Carro',
@@ -27,10 +36,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
   }
 
-  void _fetchVehicleBrands() async {
-    List<String> brands = await fetchData(selectedVehicleType);
+  void _fetchVehicleBrands(String listName) async {
+    final records = await fetchData(selectedVehicleType, selectedVehicleBrand, selectedVehicleModel, selectedVehicleYear);
+
     setState(() {
-      vehicleBrands = brands.cast<String>();
+      switch (listName) {
+        case 'brand':
+          vehicleBrands = records;
+          break;
+        case 'model':
+          vehicleModels = records;
+          break;
+        case 'year':
+          vehicleYears = records;
+          break;
+      }
+    });
+  }
+
+  void _fetchFipeDetails() async {
+    final details =  await fetchDetailData(selectedVehicleType, selectedVehicleBrand.toString(), selectedVehicleModel.toString(), selectedVehicleYear.toString());
+
+    setState(() {
+      fipeDetails = details;      
     });
   }
 
@@ -51,21 +79,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(
                 height: 25,
               ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 33.0),
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Tipo veiculo',
+                  style: TextStyle(color: Colors.grey[700], fontSize: 16),
+                ),
+              ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                padding: const EdgeInsets.symmetric(horizontal: 35.0),
                 child: DropdownButton<String>(
                   isExpanded: true,
                   value: selectedVehicleType,
-                  hint: Container(
-                    padding: const EdgeInsets.only(left: 25),
-                    child: const Text('Selecione o tipo de veículo'),
-                  ),
                   onChanged: (newValue) {
                     if (newValue != 'Selecione o tipo de veículo') {
                       setState(() {
                         selectedVehicleType = newValue!;
                       });
-                      _fetchVehicleBrands();
+                      selectedVehicleYear = null;
+                      selectedVehicleModel = null;
+                      selectedVehicleBrand = null;
+                      _fetchVehicleBrands('brand');
                     }
                   },
                   items: vehicleTypes
@@ -80,6 +115,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(
                 height: 25,
               ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 33.0),
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Marca',
+                  style: TextStyle(color: Colors.grey[700], fontSize: 16),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: SearchChoices.single(
@@ -87,18 +130,100 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   value: selectedVehicleBrand,
                   searchHint: 'Busque aqui',
                   displayClearIcon: false,
+                  readOnly:
+                      selectedVehicleType == 'Selecione o tipo de veículo',
                   onChanged: (newValue) {
                     setState(() {
                       selectedVehicleBrand = newValue;
                     });
+                    selectedVehicleYear = null;
+                    selectedVehicleModel = null;
+                    _fetchVehicleBrands('model');
                   },
-                  items: vehicleBrands.map((brand) {
-                    return DropdownMenuItem(
-                      value: brand,
-                      child: Text(brand),
-                    );
-                  }).toList(),
+                  items: vehicleBrands != null
+                      ? vehicleBrands?.map((brand) {
+                          return DropdownMenuItem(
+                            value: brand.codigo,
+                            child: Text(brand.nome),
+                          );
+                        }).toList()
+                      : [],
                 ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 33.0),
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Modelo',
+                  style: TextStyle(color: Colors.grey[700], fontSize: 16),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                child: SearchChoices.single(
+                  isExpanded: true,
+                  value: selectedVehicleModel,
+                  searchHint: 'Busque aqui',
+                  displayClearIcon: false,
+                  readOnly: selectedVehicleBrand == null,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedVehicleModel = newValue;
+                    });
+                    selectedVehicleYear = null;
+                    _fetchVehicleBrands('year');
+                  },
+                  items: vehicleModels != null
+                      ? vehicleModels?.map((model) {
+                          return DropdownMenuItem(
+                            value: model.codigo,
+                            child: Text(model.nome),
+                          );
+                        }).toList()
+                      : [],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 33.0),
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Ano',
+                  style: TextStyle(color: Colors.grey[700], fontSize: 16),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                child: SearchChoices.single(
+                  isExpanded: true,
+                  value: selectedVehicleYear,
+                  searchHint: 'Busque aqui',
+                  displayClearIcon: false,
+                  readOnly: selectedVehicleBrand == null,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedVehicleYear = newValue;
+                    });
+                    _fetchFipeDetails();
+                  },
+                  items: vehicleYears != null ? vehicleYears?.map((year) {
+                    return DropdownMenuItem(
+                      value: year.codigo,
+                      child: Text(year.nome),
+                    );
+                  }).toList() : [],
+                ),
+              ),
+              ElevatedButton(        
+                child: const Text('Pesquisar'),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isDismissible: true,
+                    builder: (context){
+                      return FipeDetailsScreen(fipeDetail: fipeDetails,);
+                    }
+                  );
+                },
               ),
             ]),
           ),
