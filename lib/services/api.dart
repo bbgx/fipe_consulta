@@ -1,70 +1,97 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:fipez/models/FipeDetails.dart';
-import 'package:fipez/models/FipeRequest.dart';
+import 'package:fipez/models/fipe_details.dart';
+import 'package:fipez/models/fipe_request.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<FipeRequest>> fetchData(String selectedVehicleType,
-    [String? selectedVehicleBrand,
-    String? selectedVehicleModel,
-    String? selectedVehicleYear]) async { 
-
+Future<List<FipeRequest>> fetchData(
+  String selectedVehicleType, [
+  String? selectedVehicleBrand,
+  String? selectedVehicleModel,
+  String? selectedVehicleYear,
+]) async {
   final response = await http.get(
-    Uri.parse(getURL(selectedVehicleType, selectedVehicleBrand,
-        selectedVehicleModel, selectedVehicleYear)),
+    Uri.parse(
+      _getURL(
+        selectedVehicleType,
+        selectedVehicleBrand,
+        selectedVehicleModel,
+        selectedVehicleYear,
+      ),
+    ),
   );
 
   if (response.statusCode == 200) {
-    List<FipeRequest> records = FormatReturn(response,
-        (selectedVehicleBrand != null && selectedVehicleModel == null));
+    final records = _formatReturn(
+      response,
+      selectedVehicleBrand != null && selectedVehicleModel == null,
+    );
     return records;
   } else {
-    print('Caiu aqui!');
     throw Exception('Failed to load data');
   }
 }
 
-Future<FipeDetail> fetchDetailData(String selectedVehicleType, String selectedVehicleBrand, String selectedVehicleModel, String selectedVehicleYear) async{
+Future<FipeDetail> fetchDetailData(
+  String selectedVehicleType,
+  String selectedVehicleBrand,
+  String selectedVehicleModel,
+  String selectedVehicleYear,
+) async {
   final response = await http.get(
-    Uri.parse(getURL(selectedVehicleType, selectedVehicleBrand,
-        selectedVehicleModel, selectedVehicleYear)),
-  ); 
+    Uri.parse(
+      _getURL(
+        selectedVehicleType,
+        selectedVehicleBrand,
+        selectedVehicleModel,
+        selectedVehicleYear,
+      ),
+    ),
+  );
 
-  if(response.statusCode == 200){
+  if (response.statusCode == 200) {
     return FipeDetail.fromJson(jsonDecode(response.body));
-  }
-  else{
+  } else {
     throw Exception('Failed to load data');
   }
 }
 
-List<FipeRequest> FormatReturn(response, bool isModelRequest) {
+List<FipeRequest> _formatReturn(response, bool isModelRequest) {
   final data = json.decode(response.body);
   if (!isModelRequest) {
-    return data
-        .map((rec) => FipeRequest(
-            nome: rec['nome'] as String, codigo: rec['codigo'] as String))
-        .cast<FipeRequest>()
-        .toList();
+    return List<FipeRequest>.from(
+      data.map(
+        (rec) => FipeRequest(
+          nome: rec['nome'] as String,
+          codigo: rec['codigo'] as String,
+        ),
+      ),
+    );
   }
-  
-  return data['modelos']
-      .map((rec) => FipeRequest(
-          nome: rec['nome'] as String, codigo: (rec['codigo'] as int).toString()))
-      .cast<FipeRequest>()
-      .toList();
+
+  return List<FipeRequest>.from(
+    data['modelos'].map(
+      (rec) => FipeRequest(
+        nome: rec['nome'] as String,
+        codigo: (rec['codigo'] as int).toString(),
+      ),
+    ),
+  );
 }
 
-String getURL(String selectedVehicleType, String? selectedVehicleBrand,
-    String? selectedVehicleModel, String? selectedVehicleYear) {
-  
+String _getURL(
+  String selectedVehicleType,
+  String? selectedVehicleBrand,
+  String? selectedVehicleModel,
+  String? selectedVehicleYear,
+) {
   if (selectedVehicleType == 'Caminhão') {
     selectedVehicleType = 'caminhoes';
   }
 
   selectedVehicleType = selectedVehicleType.toLowerCase();
 
-  String baseURL =
+  var baseURL =
       'https://parallelum.com.br/fipe/api/v1/$selectedVehicleType/marcas';
 
   if (selectedVehicleBrand != null) baseURL += '/$selectedVehicleBrand/modelos';
@@ -72,8 +99,6 @@ String getURL(String selectedVehicleType, String? selectedVehicleBrand,
   if (selectedVehicleModel != null) baseURL += '/$selectedVehicleModel/anos';
 
   if (selectedVehicleYear != null) baseURL += '/$selectedVehicleYear';
-
-  print(baseURL);
 
   return baseURL;
 }

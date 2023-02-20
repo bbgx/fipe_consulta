@@ -1,5 +1,5 @@
-import 'package:fipez/models/FipeDetails.dart';
-import 'package:fipez/models/FipeRequest.dart';
+import 'package:fipez/models/fipe_details.dart';
+import 'package:fipez/models/fipe_request.dart';
 import 'package:fipez/screens/fipe_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:search_choices/search_choices.dart';
@@ -37,7 +37,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _fetchVehicleBrands(String listName) async {
-    final records = await fetchData(selectedVehicleType, selectedVehicleBrand, selectedVehicleModel, selectedVehicleYear);
+    final records = await fetchData(selectedVehicleType, selectedVehicleBrand,
+        selectedVehicleModel, selectedVehicleYear);
 
     setState(() {
       switch (listName) {
@@ -55,10 +56,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _fetchFipeDetails() async {
-    final details =  await fetchDetailData(selectedVehicleType, selectedVehicleBrand.toString(), selectedVehicleModel.toString(), selectedVehicleYear.toString());
+    final details = await fetchDetailData(
+        selectedVehicleType,
+        selectedVehicleBrand.toString(),
+        selectedVehicleModel.toString(),
+        selectedVehicleYear.toString());
 
     setState(() {
-      fipeDetails = details;      
+      fipeDetails = details;
     });
   }
 
@@ -205,24 +210,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     });
                     _fetchFipeDetails();
                   },
-                  items: vehicleYears != null ? vehicleYears?.map((year) {
-                    return DropdownMenuItem(
-                      value: year.codigo,
-                      child: Text(year.nome),
-                    );
-                  }).toList() : [],
+                  items: vehicleYears != null
+                      ? vehicleYears?.map((year) {
+                          return DropdownMenuItem(
+                            value: year.codigo,
+                            child: Text(year.nome),
+                          );
+                        }).toList()
+                      : [],
                 ),
               ),
-              ElevatedButton(        
+              ElevatedButton(
                 child: const Text('Pesquisar'),
                 onPressed: () {
                   showModalBottomSheet(
-                    context: context,
-                    isDismissible: true,
-                    builder: (context){
-                      return FipeDetailsScreen(fipeDetail: fipeDetails,);
-                    }
-                  );
+                      context: context,
+                      isDismissible: true,
+                      builder: (context) {
+                        return FipeDetailsScreen(
+                          fipeDetail: fipeDetails,
+                        );
+                      });
                 },
               ),
             ]),
