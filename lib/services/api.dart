@@ -57,26 +57,14 @@ Future<FipeDetail> fetchDetailData(
 }
 
 List<FipeRequest> _formatReturn(response, bool isModelRequest) {
-  final data = json.decode(response.body);
-  if (!isModelRequest) {
-    return List<FipeRequest>.from(
-      data.map(
-        (rec) => FipeRequest(
-          nome: rec['nome'] as String,
-          codigo: rec['codigo'] as String,
-        ),
-      ),
-    );
-  }
-
+  var data = json.decode(response.body);
+  data = isModelRequest ? data['modelos'] :  data;
+  
   return List<FipeRequest>.from(
-    data['modelos'].map(
-      (rec) => FipeRequest(
-        nome: rec['nome'] as String,
-        codigo: (rec['codigo'] as int).toString(),
-      ),
+    data.map(
+      (rec) => FipeRequest.fromJson(rec) 
     ),
-  );
+  );   
 }
 
 String _getURL(
