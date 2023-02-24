@@ -1,11 +1,15 @@
+import 'package:fipez/ad_helper.dart';
 import 'package:fipez/models/fipe_details.dart';
 import 'package:fipez/models/fipe_request.dart';
 import 'package:fipez/screens/fipe_details_screen.dart';
 import 'package:fipez/widgets/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:search_choices/search_choices.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../services/api.dart';
+
+
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -30,6 +34,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
     const FipeRequest(nome: 'Moto', codigo: 'motos'),
     const FipeRequest(nome: 'Caminhão', codigo: 'caminhoes')
   ];
+
+  static final _kAdIndex = 4;
+
+  BannerAd? _ad; 
+
+  int _getDestinationItemIndex(int rawIndex) {
+    if (rawIndex >= _kAdIndex && _ad != null) {
+      return rawIndex - 1;
+    }
+    return rawIndex;
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    
+    BannerAd(
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _ad = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+        ad.dispose();
+        print('Ad load failed (code=${error.code} message=${error.message})');
+        },
+      ),
+    ).load();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,16 +152,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   );
                 },
               ),
+              Container(
+                width: _ad!.size.width.toDouble(),
+                height: 72.0,
+                alignment: Alignment.center,
+                child: AdWidget(ad: _ad!),
+              )
             ]),
           ),
         ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   void _fetchFipeDetails() async {
