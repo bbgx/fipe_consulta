@@ -30,15 +30,19 @@ class _FipeDatailsScreenState extends State<FipeDetailsScreen> {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 60),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
                           'Marca:',
-                          style: TextStyle(
+                          
+                        ),
+                        Text(
+                          widget.fipeDetail?.marca ?? '',
+                          style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 20),
                         ),
-                        Text(widget.fipeDetail?.marca ?? ''),
                         const SizedBox(
                           height: 10,
                         )
@@ -49,10 +53,13 @@ class _FipeDatailsScreenState extends State<FipeDetailsScreen> {
                       children: [
                         const Text(
                           'Modelo:',
-                          style: TextStyle(
+                          
+                        ),
+                        Text(
+                          widget.fipeDetail?.modelo ?? '',
+                          style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 20),
                         ),
-                        Text(widget.fipeDetail?.modelo ?? ''),
                         const SizedBox(
                           height: 10,
                         )
@@ -63,10 +70,13 @@ class _FipeDatailsScreenState extends State<FipeDetailsScreen> {
                       children: [
                         const Text(
                           'Ano do Modelo:',
-                          style: TextStyle(
+                       
+                        ),
+                        Text(
+                          widget.fipeDetail?.anoModelo.toString() ?? '',
+                          style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 20),
                         ),
-                        Text(widget.fipeDetail?.anoModelo.toString() ?? ''),
                         const SizedBox(
                           height: 10,
                         )
@@ -77,10 +87,12 @@ class _FipeDatailsScreenState extends State<FipeDetailsScreen> {
                       children: [
                         const Text(
                           'Mês de referência:',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
                         ),
-                        Text(widget.fipeDetail?.mesReferencia ?? ''),
+                        Text(
+                          widget.fipeDetail?.mesReferencia ?? '',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
                         const SizedBox(
                           height: 10,
                         )
@@ -91,10 +103,12 @@ class _FipeDatailsScreenState extends State<FipeDetailsScreen> {
                       children: [
                         const Text(
                           'Código FIPE:',
-                          style: TextStyle(
+                        ),
+                        Text(
+                          widget.fipeDetail?.codigoFipe ?? '',
+                        style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 20),
                         ),
-                        Text(widget.fipeDetail?.codigoFipe ?? ''),
                         const SizedBox(
                           height: 10,
                         )
@@ -106,11 +120,11 @@ class _FipeDatailsScreenState extends State<FipeDetailsScreen> {
                         const Text(
                           'Valor:',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 30),
+                              fontSize: 20),
                         ),
                         Text(
                           widget.fipeDetail?.valor ?? '',
-                          style: const TextStyle(fontSize: 20),
+                          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(
                           height: 10,

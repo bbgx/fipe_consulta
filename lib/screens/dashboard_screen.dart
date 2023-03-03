@@ -47,12 +47,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   @override
-  void initState(){
-    super.initState();
-    
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadAd();
+  }
+
+  Future<void> _loadAd() async{
+    final AnchoredAdaptiveBannerAdSize? size =
+    await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+      MediaQuery.of(context).size.width.truncate()
+    );
+
+    if (size == null) {
+      print('Unable to get height of anchored banner.');
+      return;
+    }
+
+
     BannerAd(
       adUnitId: 'ca-app-pub-3940256099942544/6300978111',
-      size: AdSize.banner,
+      size: size, 
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
@@ -77,6 +91,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: SingleChildScrollView(
           child: Center(
             child: Column(children: [
+              if (_ad != null)
+                Container(
+                  width: _ad!.size.width.toDouble(),
+                  height: 60,
+                  child: AdWidget(ad: _ad!)
+                ), 
               const SizedBox(height: 20),
               Image.asset("lib/images/fipe-logo.png"),
               const SizedBox(height: 30),
@@ -145,19 +165,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       context: context,
                       isDismissible: true,
                       builder: (context) {
-                        return FipeDetailsScreen(
-                          fipeDetail: fipeDetails,
+                        return Column(
+                          children: [
+                            FipeDetailsScreen(
+                              fipeDetail: fipeDetails,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              }, 
+                              child:
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(onSurface: Colors.red),
+                                  onPressed: null,
+                                  child: Text("Fechar"),
+                                )
+                            )
+                          ],
                         );
                       }
                   );
                 },
-              ),
-              Container(
-                width: _ad!.size.width.toDouble(),
-                height: 72.0,
-                alignment: Alignment.center,
-                child: AdWidget(ad: _ad!),
-              )
+              ), 
             ]),
           ),
         ),
